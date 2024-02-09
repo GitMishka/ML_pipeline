@@ -1,7 +1,15 @@
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 import config
-connection_string = config.blobString
-blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+import ssl
+
+
+# Custom SSL context
+ssl_context = ssl._create_unverified_context()
+
+connection_string = config.junkString
+blob_service_client = BlobServiceClient.from_connection_string(connection_string, connection_ssl_context=ssl_context)
+
 
 container_name = 'crime'
 container_client = blob_service_client.get_container_client(container_name)
@@ -9,8 +17,7 @@ container_client = blob_service_client.get_container_client(container_name)
 import os
 
 # Local directory to save files
-local_path = 'C:\Users\Misha\Desktop\GitHub\ML_pipeline\data'
-
+local_path = 'C:\\Users\\Misha\\Desktop\\GitHub\\ML_pipeline'
 for blob in container_client.list_blobs():
     print("Downloading blob:", blob.name)
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob.name)
