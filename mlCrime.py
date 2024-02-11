@@ -26,8 +26,21 @@ sample_df['Time of Day'] = pd.cut(sample_df['Hour'], bins=time_of_day_bins, labe
 sample_df.drop(columns=['Hour'], inplace=True)
 
 # Preparing data for model training
-X = sample_df[['Day of Week', 'Month', 'LAT', 'LON']]
-X = pd.get_dummies(X, columns=['Day of Week', 'Month', 'Time of Day'], drop_first=True)  # One-hot encoding categorical variables
+# Ensure 'Time of Day' is correctly generated in the sample_df DataFrame
+# Then, when selecting features for X, include 'Time of Day' if it's not already there
+
+# Assuming 'Day of Week', 'Month', 'LAT', 'LON', and 'Time of Day' are your intended features
+X = sample_df[['Day of Week', 'Month', 'LAT', 'LON', 'Time of Day']]
+
+# Before one-hot encoding, ensure 'Time of Day' exists in X
+# This line is just for demonstration and should be adjusted to match your actual data and features
+X['Time of Day'] = sample_df['Time of Day']  # Adjust this as necessary
+
+# Now, apply one-hot encoding, specifying the correct columns, including 'Time of Day'
+X = pd.get_dummies(X, columns=['Day of Week', 'Month', 'Time of Day'], drop_first=True)
+
+# Continue with your data split and model training as before
+
 y = sample_df['Crm Cd']  # Assuming 'Crm Cd' as the target variable
 
 # Splitting the dataset into training and testing sets
