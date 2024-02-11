@@ -50,3 +50,19 @@ print(f'Training features shape: {X_train.shape}')
 print(f'Testing features shape: {X_test.shape}')
 print(f'Training labels shape: {y_train.shape}')
 print(f'Testing labels shape: {y_test.shape}')
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# Initialize the model
+clf = RandomForestClassifier(random_state=42)
+
+# Train the model
+clf.fit(X_train, y_train)
+
+# Predict on the testing set
+y_pred = clf.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.2f}')
