@@ -1,20 +1,39 @@
-# Handling Missing Values: Check for missing values in the dataset
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from datetime import datetime
 
-# Load the sample dataset
-sample_df = pd.read_csv('Crime_Data_from_2020_to_Present(1).csv')
+# Load the dataset
+sample_df = pd.read_csv('C:/Users/Misha/Desktop/GitHub/ML_pipeline/sample.csv')
 
-# Display the first few rows of the dataset to understand its structure
-sample_df.head()
+# Specify the date format and convert 'DATE OCC' to datetime
+# Adjust the format according to your dataset's date format
+sample_df['DATE OCC'] = pd.to_datetime(sample_df['DATE OCC'], format='%m/%d/%Y %H:%M')
 
+# Feature Engineering
+# Extract day of the week and month from 'DATE OCC'
+sample_df['Day of Week'] = sample_df['DATE OCC'].dt.dayofweek
+sample_df['Month'] = sample_df['DATE OCC'].dt.month
 
-missing_values = sample_df.isnull().sum()
+# Assuming 'TIME OCC' is in HHMM format and converting to hour for simplicity
+sample_df['Hour'] = sample_df['TIME OCC'] // 100
 
-# Feature Selection: Based on initial overview, let's initially select a broad set of features
-# These might include 'Date Rptd', 'DATE OCC', 'TIME OCC', 'AREA', 'AREA NAME', 'Crm Cd', 'Crm Cd Desc', 'LAT', 'LON'
-# We will refine this selection based on missing values and relevance to the crime prediction task
+# Define time of day categories: Morning (5-12), Afternoon (12-17), Evening (17-24), Night (0-5)
+time_of_day_bins = [0, 5, 12, 17, 24]
+time_of_day_labels = ['Night', 'Morning', 'Afternoon', 'Evening']
+sample_df['Time of Day'] = pd.cut(sample_df['Hour'], bins=time_of_day_bins, labels=time_of_day_labels, right=False, ordered=True)
 
-# For demonstration, we'll just check missing values and suggest features without actually dropping or imputing yet
-selected_features = ['Date Rptd', 'DATE OCC', 'TIME OCC', 'AREA', 'AREA NAME', 'Crm Cd', 'Crm Cd Desc', 'LAT', 'LON']
+# Dropping the temporary 'Hour' column
+sample_df.drop(columns=['Hour'], inplace=True)
 
-missing_values[selected_features]
+# Preparing data for model training
+X = sample_df[['Day of Week', 'Month', 'LAT', 'LON']]
+X = pd.get_dummies(X, columns=['Day of Week', 'Month', 'Time of Day'], drop_first=True)  # One-hot encoding categorical variables
+y = sample_df['Crm Cd']  # Assuming 'Crm Cd' as the target variable
+
+# Splitting the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print(f'Training features shape: {X_train.shape}')
+print(f'Testing features shape: {X_test.shape}')
+print(f'Training labels shape: {y_train.shape}')
+print(f'Testing labels shape: {y_test.shape}')
